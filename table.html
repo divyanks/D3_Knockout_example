@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Sample calculator!</title>
+
+    <!-- Bootstrap Core CSS -->
+	<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+	<script src= "https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<script src="http:////cdn.jsdelivr.net/jstat/1.1.3/jstat.min.js"></script>
+    <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="http://getbootstrap.com/examples/justified-nav/justified-nav.css" rel="stylesheet">
+    <style>
+		body {background-color: #grey;font-family:  Serif, "Times New Roman", Georgia;font-weight: 100;  padding-top: 	0px;}
+		table {border-collapse: collapse;width:98%;}
+		table, th, td { border: 1px solid #6D7C7C;}
+		input {width:50px;height:1.4em;border-collapse: collapse;text-align:center;}
+		tr {font-size:0.8em;}
+		h2{margin-top: 5px;margin-bottom: 5px;}
+		td{text-align:center;}
+		th{background-color:black;color:white;height:20px;font-weight:300;padding:1px;}
+		.axis path {fill: none;stroke: #777;shape-rendering: crispEdges;}
+        .axis text {font-size: 13px;}
+
+	 </style>
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body id="top">
+<div id="conatiner">
+<h2 style="text-align:center">Calculator</h2>
+<div class="col-lg-1">
+<div class="row" style="position:fixed;top:100px">
+	<ul>
+		<li><a href="#top"> Top </a></li>
+		<li><a href="#second"> Second </a></li>
+		<li><a href="#third"> Third </a></li>
+		<li><a href="#graph"> Graph </a></li>
+	</ul>
+</div>	
+</div>
+<div class="col-lg-11">
+<div class="row">
+
+<p>
+    Alpha:
+    <select data-bind="options: includeAlphaOptions, value:includeAlpha"></select>
+</p>
+
+<br> <br>
+
+<table>
+    <thead><tr>
+		<th>AssetClass</th>
+		<th>Index return</th>
+        <th>Franking/ Hedging</th>
+        <th>Alpha</th>
+        <th>Total, including alpha</th>
+        <th>Capital</th>
+        <th>Income (incl franking/hedging)</th>
+		<th>Standard Deviation</th>
+        <th>Frequency of Negative Return (yrs)</th>
+   </tr></thead>
+    <tbody data-bind="foreach: tableA">
+		<tr>
+			<td data-bind="text: assetClass"></td>
+			<td data-bind="text: index "></td>
+			<td> <input data-bind="value: franking" /></td>
+			<td> <input data-bind="value: alpha" /></td>
+			<td data-bind="text: incAlpha"></td>
+			<td data-bind="text: capital"></td>
+			<td>
+				<span data-bind="text: incfrank, visible: !isIncEdit"></span>
+				<input data-bind="value: incfrank, visible: isIncEdit"/>
+			</td>
+			<td>
+				<span data-bind="text: stddev, visible: !isSDevEdit"></span>
+				<input data-bind="value: stddev, visible: isSDevEdit"/>
+			</td>
+			<td data-bind="text: freq"></td>
+    </tbody>
+</table>
+<hr>
+<!-- Second Table -->
+<table id="second">
+    <thead><tr>
+		<th>Asset Class</th>
+		<th>Capital Preservation</th>
+        <th>Income</th>
+        <th>Capital Growth</th>
+        <th>Current</th>
+        <th>Proposed</th>
+   </tr></thead>
+    <tbody data-bind="foreach: tableA">
+		<tr>
+			<td data-bind="text: assetClass"></td>
+			<td data-bind="text: t2capPres"></td>
+			<td data-bind="text: t2inc"></td>
+			<td data-bind="text: t2growth"></td>
+			<td> <input data-bind="value: t2curr" /></td>
+			<td> <input data-bind="value: t2prop" /></td>
+		</tr>     
+    </tbody>
+    <tbody>
+		<tr>
+			<td>Total</td>
+			<td data-bind="text: tot1"></td>
+			<td data-bind="text: tot2"></td>
+			<td data-bind="text: tot3"></td>
+			<td data-bind="text: tot4"></td>
+			<td data-bind="text: tot5"></td>
+		</tr>     
+    </tbody>
+</table>
+<hr>
+<!-- Third Table -->
+<table id="third">
+    <thead><tr>
+		<th>Portfolio Allocation</th>
+		<th>Capital Preservation</th>
+        <th>Income</th>
+        <th>Capital Growth</th>
+        <th>Current</th>
+        <th>Proposed</th>
+   </tr></thead>
+    <tbody>
+		<tr>
+			<td>Expected Return</td>
+			<td data-bind="text: r1c1"></td>
+			<td data-bind="text: r1c2"></td>
+			<td data-bind="text: r1c3"></td>
+			<td data-bind="text: r1c4"></td>
+			<td data-bind="text: r1c5"></td>
+		</tr>     
+		<tr>
+			<td>Capital</td>
+			<td data-bind="text: r2c1"></td>
+			<td data-bind="text: r2c2"></td>
+			<td data-bind="text: r2c3"></td>
+			<td data-bind="text: r2c4"></td>
+			<td data-bind="text: r2c5"></td>
+		</tr>     
+		<tr>
+			<td>Income</td>
+			<td data-bind="text: r3c1"></td>
+			<td data-bind="text: r3c2"></td>
+			<td data-bind="text: r3c3"></td>
+			<td data-bind="text: r3c4"></td>
+			<td data-bind="text: r3c5"></td>
+		</tr>     
+		<tr>
+			<td>Standard Deviation</td>
+			<td data-bind="text: r4c1"></td>
+			<td data-bind="text: r4c2"></td>
+			<td data-bind="text: r4c3"></td>
+			<td data-bind="text: r4c4"></td>
+			<td data-bind="text: r4c5"></td>
+		</tr>
+		<tr>
+			<td>Frequency of Negative Return (yrs)</td>
+			<td data-bind="text: r5c1"></td>
+			<td data-bind="text: r5c2"></td>
+			<td data-bind="text: r5c3"></td>
+			<td data-bind="text: r5c4"></td>
+			<td data-bind="text: r5c5"></td>
+		</tr>     
+
+	</tbody>
+</table>
+</div>
+<hr>
+<div class="row" id="graph">
+	<svg id="visualisation" width="1000" height="500"></svg>
+</div>
+</div>
+</div>
+
+
+	<script>
+            (function () { // Wrap in function to prevent accidental globals
+	
+	var display = "all";
+	var portfolio = "";
+	
+	
+	self.includeAlphaOptions = ko.observableArray(['Include', 'Exclude']);
+	self.includeAlpha = ko.observable('Include');
+    // Class to represent a row in the seat reservations grid
+	function gFV(tval)
+	{
+		if(isNaN(tval) || tval == "")
+			return parseFloat("0.0");
+		else
+			return parseFloat(tval);
+	}
+
+	function NORMDIST(x, mean, sd, cumulative) {
+		  // Check parameters
+		  if (isNaN(x) || isNaN(mean) || isNaN(sd)) return '#VALUE!';
+		  if (sd <= 0) return '#NUM!';
+		  return (cumulative) ? jStat.normal.cdf(x, mean, sd) : jStat.normal.pdf(x, mean, sd);
+	}
+	
+	function Row(id, assetClass, index, franking, alpha, incfrank, stddev, isSDevEdit, isIncEdit, t2capPres, t2inc, t2growth, t2curr, t2prop, t1aeq, t1ieh, t1ieuh,t1c,t1afi,t1ifi,t1o) {
+		var self = this;
+		self.id = id;
+		self.assetClass= ko.observable(assetClass);
+		self.index = ko.observable(index);
+        self.franking= ko.observable(franking);
+        self.alpha=ko.observable(alpha);
+		self.stddev = ko.observable(stddev);
+		self.isIncEdit = isIncEdit;
+		self.isSDevEdit = isSDevEdit;
+		self.t2capPres = ko.observable(t2capPres);
+		self.t2inc = ko.observable(t2inc);
+		self.t2growth = ko.observable(t2growth);
+		self.t2curr = ko.observable(t2curr);
+		self.t2prop = ko.observable(t2prop);
+		self.t1aeq = t1aeq;
+		self.t1ieh = t1ieh;
+		self.t1ieuh = t1ieuh;
+		self.t1c = t1c;
+		self.t1afi = t1afi
+		self.t1ifi = t1ifi;
+		self.t1o = t1o;
+        self.incAlpha= ko.computed(function() {
+			val = gFV(self.index()) + gFV(self.franking());
+			if(includeAlpha() == 'Include')
+				val += gFV(self.alpha());
+			val = val.toFixed(2);
+			return val; }, this);
+		
+		self.incfrank = 4;
+		if(id == 1)
+		{
+			self.incfrank= ko.computed(function() {
+				val = 4 + gFV(self.franking());
+				return val; }, this);
+		}
+		else if(id==4)
+		{
+			self.incfrank= ko.computed(function() {
+				val = gFV(self.incAlpha());
+				val = val.toFixed(2);
+				return val; }, this);
+		}
+		else
+		{
+			self.incfrank = ko.observable(incfrank);
+		}
+		//for capital
+        self.capital= ko.computed(function() {
+			val = gFV(self.incAlpha()) - gFV(self.incfrank());
+			val = val.toFixed(2);
+			return val; }, this);
+		if(id == 4)
+			self.freq = "-"
+		else
+		{
+			self.freq= ko.computed(function() {
+				val = gFV(1/ NORMDIST(0,gFV(self.incAlpha()),gFV(self.stddev()), true));
+				val = val.toFixed(0);
+				return val; }, this);
+		}
+	}
+// Overall viewmodel for this screen, along with initial state
+	function CalculationViewModel() {
+		var self = this;
+		// Editable data
+		self.tarray = [
+			new Row(1, "Accumulation Australian Equities",7.00,1.20,1.00,5.2,12.9,false,false,/*tab2*/25,40,35,60,40/*tab3*/,1.00,0.79,0.50,-0.19,-0.33,-0.07,0.50),
+			new Row(2, "International Equities (hedged)",7.50,0.75,1.00,2.5,14.6,false,false,/*tab2*/5,5,20,20,10/*tab3*/,0.79,1.00,0.69,-0.26,-0.43,-0.16,0.50),
+			new Row(3, "International Equities (unhedged)",7.50,0,1.50,2.0,12.1,false,false,/*tab2*/5,5,15,20,10/*tab3*/,0.50,0.69,1.00,-0.18,-0.22,-0.31,0.50),
+			new Row(4, "Cash",2.75,0,0,2.8,0.4,false,false,/*tab2*/10,5,5,0,5/*tab3*/,-0.19,-0.26,-0.18,1.00,0.20,0.01,0.50),
+			new Row(5, "Australian Fixed Interest",4.50,0,0.30,5,3.3,false,false,/*tab2*/25,25,5,0,15/*tab3*/,-0.33,-0.43,-0.22,0.20,1.00,0.63,0.50),
+			new Row(6, "International Fixed Interest",3.50,0.75,0.50,5,3.2,false,false,/*tab2*/20,10,10,0,10/*tab3*/,-0.07,-0.16,-0.31,0.01,0.63,1.00,0.50),
+			new Row(7, "Other",7.00,0.00,0.00,1.0,10.0,true,true, 10,10,10,0,10/*tab3*/,0.50,0.50,0.50,0.50,0.50,0.50,1.00)
+		];
+		
+		self.tableA = ko.observableArray(self.tarray);
+
+		//now set the observable sum of each columns
+		self.tot1 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) {
+				var tro = self.tableA()[index];
+				tot += gFV(tro.t2capPres());
+			}
+			return tot;
+		});
+		
+		self.tot2 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) {
+				var tro = self.tableA()[index];
+				tot += gFV(tro.t2inc());
+			}		
+			return tot;
+		});
+
+		self.tot3 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) {
+				var tro = self.tableA()[index];
+				tot += gFV(tro.t2growth());
+			}		
+			return tot;
+		});
+
+		self.tot4 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) {
+				var tro = self.tableA()[index];
+				tot += gFV(tro.t2curr());
+			}		
+			return tot;
+		});
+		
+		self.tot5 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) {
+				var tro = self.tableA()[index];
+				tot += gFV(tro.t2prop());
+			}		
+			return tot;
+		});
+		
+		//Now for the final portfolio allocation
+		//row 1
+		self.r1c1 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+				tot += (gFV(self.tableA()[index].t2capPres()) * gFV(self.tableA()[index].incAlpha()));
+			return (tot/100).toFixed(2);
+		});
+		self.r1c2 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+				tot += (gFV(self.tableA()[index].t2inc()) * gFV(self.tableA()[index].incAlpha()));
+			return (tot/100).toFixed(2);
+		});
+		self.r1c3 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+				tot += (gFV(self.tableA()[index].t2growth()) * gFV(self.tableA()[index].incAlpha()));
+			return (tot/100).toFixed(2);
+		});
+		self.r1c4 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+				tot += (gFV(self.tableA()[index].t2curr()) * gFV(self.tableA()[index].incAlpha()));
+			return (tot/100).toFixed(2);
+		});
+		
+		self.r1c5 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+				tot += (gFV(self.tableA()[index].t2prop()) * gFV(self.tableA()[index].incAlpha()));
+			return (tot/100).toFixed(2);
+		});
+		
+		//row 2
+		self.r2c1 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+				tot += (gFV(self.tableA()[index].t2capPres()) * gFV(self.tableA()[index].capital()));
+			return (tot/100).toFixed(2);
+		});
+		self.r2c2 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+				tot += (gFV(self.tableA()[index].t2inc()) * gFV(self.tableA()[index].capital()));
+			return (tot/100).toFixed(2);
+		});
+		self.r2c3 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+				tot += (gFV(self.tableA()[index].t2growth()) * gFV(self.tableA()[index].capital()));
+			return (tot/100).toFixed(2);
+		});
+		self.r2c4 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+				tot += (gFV(self.tableA()[index].t2curr()) * gFV(self.tableA()[index].capital()));
+			return (tot/100).toFixed(2);
+		});
+		
+		self.r2c5 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+				tot += (gFV(self.tableA()[index].t2prop()) * gFV(self.tableA()[index].capital()));
+			return (tot/100).toFixed(2);
+		});
+		//row 3
+		self.r3c1 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+				tot += (gFV(self.tableA()[index].t2capPres()) * gFV(self.tableA()[index].incfrank()));
+			return (tot/100).toFixed(2);
+		});
+		self.r3c2 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+				tot += (gFV(self.tableA()[index].t2inc()) * gFV(self.tableA()[index].incfrank()));
+			return (tot/100).toFixed(2);
+		});
+		self.r3c3 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+				tot += (gFV(self.tableA()[index].t2growth()) * gFV(self.tableA()[index].incfrank()));
+			return (tot/100).toFixed(2);
+		});
+		self.r3c4 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+				tot += (gFV(self.tableA()[index].t2curr()) * gFV(self.tableA()[index].incfrank()));
+			return (tot/100).toFixed(2);
+		});
+		
+		self.r3c5 = ko.computed(function(){
+			var tot = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+				tot += (gFV(self.tableA()[index].t2prop()) * gFV(self.tableA()[index].incfrank()));
+			return (tot/100).toFixed(2);
+		});
+		
+		//row 4
+		self.r4c1 = ko.computed(function(){
+			var tot = 0.0;
+			var firstTotal = 0.0;
+			var secondTotal = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+			{
+				firstTotal += (gFV(self.tableA()[index].t2capPres()) * gFV(self.tableA()[index].t2capPres()) * gFV(self.tableA()[index].t2capPres()) * gFV(self.tableA()[index].stddev()));
+				
+			}
+
+			secondTotal += (gFV(self.tableA()[0].t2capPres()) * gFV(self.tableA()[1].t2capPres()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[0].t1ieh));
+			secondTotal += (gFV(self.tableA()[0].t2capPres()) * gFV(self.tableA()[2].t2capPres()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[0].t1ieuh));
+			secondTotal += (gFV(self.tableA()[0].t2capPres()) * gFV(self.tableA()[3].t2capPres()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[0].t1c));	
+			secondTotal += (gFV(self.tableA()[0].t2capPres()) * gFV(self.tableA()[4].t2capPres()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[0].t1afi));	
+			secondTotal += (gFV(self.tableA()[0].t2capPres()) * gFV(self.tableA()[5].t2capPres()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[0].t1ifi));	
+			secondTotal += (gFV(self.tableA()[0].t2capPres()) * gFV(self.tableA()[6].t2capPres()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[0].t1o));
+			
+			secondTotal += (gFV(self.tableA()[1].t2capPres()) * gFV(self.tableA()[2].t2capPres()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[1].t1ieuh));
+			secondTotal += (gFV(self.tableA()[1].t2capPres()) * gFV(self.tableA()[3].t2capPres()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[1].t1c));
+			secondTotal += (gFV(self.tableA()[1].t2capPres()) * gFV(self.tableA()[4].t2capPres()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[1].t1afi));	
+			secondTotal += (gFV(self.tableA()[1].t2capPres()) * gFV(self.tableA()[5].t2capPres()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[1].t1ifi));	
+			secondTotal += (gFV(self.tableA()[1].t2capPres()) * gFV(self.tableA()[6].t2capPres()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[1].t1o));	
+			
+			secondTotal += (gFV(self.tableA()[2].t2capPres()) * gFV(self.tableA()[3].t2capPres()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[2].t1c));
+			secondTotal += (gFV(self.tableA()[2].t2capPres()) * gFV(self.tableA()[4].t2capPres()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[2].t1afi));	
+			secondTotal += (gFV(self.tableA()[2].t2capPres()) * gFV(self.tableA()[5].t2capPres()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[2].t1ifi));	
+			secondTotal += (gFV(self.tableA()[2].t2capPres()) * gFV(self.tableA()[6].t2capPres()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[2].t1o));	
+
+			secondTotal += (gFV(self.tableA()[3].t2capPres()) * gFV(self.tableA()[4].t2capPres()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[3].t1afi));	
+			secondTotal += (gFV(self.tableA()[3].t2capPres()) * gFV(self.tableA()[5].t2capPres()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[3].t1ifi));	
+			secondTotal += (gFV(self.tableA()[3].t2capPres()) * gFV(self.tableA()[6].t2capPres()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[3].t1o));	
+
+			secondTotal += (gFV(self.tableA()[4].t2capPres()) * gFV(self.tableA()[5].t2capPres()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[4].t1ifi));	
+			secondTotal += (gFV(self.tableA()[4].t2capPres()) * gFV(self.tableA()[6].t2capPres()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[4].t1o));	
+				
+	
+			secondTotal += (gFV(self.tableA()[5].t2capPres()) * gFV(self.tableA()[6].t2capPres()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[5].t1o));	
+			
+			secondTotal *= 2;
+
+			
+			firstTotal += secondTotal;
+			
+			var tot = Math.sqrt(firstTotal);
+						
+			return (tot/100).toFixed(2);
+		});
+		
+		self.r4c2 = ko.computed(function(){
+			var firstTotal = 0.0;
+			var secondTotal = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+			{
+				firstTotal += (gFV(self.tableA()[index].t2inc()) * gFV(self.tableA()[index].t2inc()) * gFV(self.tableA()[index].stddev()) * gFV(self.tableA()[index].stddev()));
+
+			}
+			secondTotal += (gFV(self.tableA()[0].t2inc()) * gFV(self.tableA()[1].t2inc()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[0].t1ieh));
+			secondTotal += (gFV(self.tableA()[0].t2inc()) * gFV(self.tableA()[2].t2inc()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[0].t1ieuh));
+			secondTotal += (gFV(self.tableA()[0].t2inc()) * gFV(self.tableA()[3].t2inc()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[0].t1c));	
+			secondTotal += (gFV(self.tableA()[0].t2inc()) * gFV(self.tableA()[4].t2inc()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[0].t1afi));	
+			secondTotal += (gFV(self.tableA()[0].t2inc()) * gFV(self.tableA()[5].t2inc()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[0].t1ifi));	
+			secondTotal += (gFV(self.tableA()[0].t2inc()) * gFV(self.tableA()[6].t2inc()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[0].t1o));
+			
+			secondTotal += (gFV(self.tableA()[1].t2inc()) * gFV(self.tableA()[2].t2inc()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[1].t1ieuh));
+			secondTotal += (gFV(self.tableA()[1].t2inc()) * gFV(self.tableA()[3].t2inc()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[1].t1c));
+			secondTotal += (gFV(self.tableA()[1].t2inc()) * gFV(self.tableA()[4].t2inc()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[1].t1afi));	
+			secondTotal += (gFV(self.tableA()[1].t2inc()) * gFV(self.tableA()[5].t2inc()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[1].t1ifi));	
+			secondTotal += (gFV(self.tableA()[1].t2inc()) * gFV(self.tableA()[6].t2inc()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[1].t1o));	
+			
+			secondTotal += (gFV(self.tableA()[2].t2inc()) * gFV(self.tableA()[3].t2inc()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[2].t1c));
+			secondTotal += (gFV(self.tableA()[2].t2inc()) * gFV(self.tableA()[4].t2inc()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[2].t1afi));	
+			secondTotal += (gFV(self.tableA()[2].t2inc()) * gFV(self.tableA()[5].t2inc()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[2].t1ifi));	
+			secondTotal += (gFV(self.tableA()[2].t2inc()) * gFV(self.tableA()[6].t2inc()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[2].t1o));	
+
+			secondTotal += (gFV(self.tableA()[3].t2inc()) * gFV(self.tableA()[4].t2inc()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[3].t1afi));	
+			secondTotal += (gFV(self.tableA()[3].t2inc()) * gFV(self.tableA()[5].t2inc()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[3].t1ifi));	
+			secondTotal += (gFV(self.tableA()[3].t2inc()) * gFV(self.tableA()[6].t2inc()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[3].t1o));	
+
+			secondTotal += (gFV(self.tableA()[4].t2inc()) * gFV(self.tableA()[5].t2inc()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[4].t1ifi));	
+			secondTotal += (gFV(self.tableA()[4].t2inc()) * gFV(self.tableA()[6].t2inc()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[4].t1o));	
+				
+	
+			secondTotal += (gFV(self.tableA()[5].t2inc()) * gFV(self.tableA()[6].t2inc()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[5].t1o));	
+			
+			secondTotal *= 2;
+
+			
+			firstTotal += secondTotal;
+			
+			var tot = Math.sqrt(firstTotal);
+						
+			return (tot/100).toFixed(2);			
+		});
+		self.r4c3 = ko.computed(function(){
+			var firstTotal = 0.0;
+			var secondTotal = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+			{
+				firstTotal += (gFV(self.tableA()[index].t2growth()) * gFV(self.tableA()[index].t2growth()) * gFV(self.tableA()[index].stddev()) * gFV(self.tableA()[index].stddev()));
+								
+
+			}
+			secondTotal += (gFV(self.tableA()[0].t2growth()) * gFV(self.tableA()[1].t2growth()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[0].t1ieh));
+			secondTotal += (gFV(self.tableA()[0].t2growth()) * gFV(self.tableA()[2].t2growth()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[0].t1ieuh));
+			secondTotal += (gFV(self.tableA()[0].t2growth()) * gFV(self.tableA()[3].t2growth()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[0].t1c));	
+			secondTotal += (gFV(self.tableA()[0].t2growth()) * gFV(self.tableA()[4].t2growth()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[0].t1afi));	
+			secondTotal += (gFV(self.tableA()[0].t2growth()) * gFV(self.tableA()[5].t2growth()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[0].t1ifi));	
+			secondTotal += (gFV(self.tableA()[0].t2growth()) * gFV(self.tableA()[6].t2growth()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[0].t1o));
+			
+			secondTotal += (gFV(self.tableA()[1].t2growth()) * gFV(self.tableA()[2].t2growth()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[1].t1ieuh));
+			secondTotal += (gFV(self.tableA()[1].t2growth()) * gFV(self.tableA()[3].t2growth()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[1].t1c));
+			secondTotal += (gFV(self.tableA()[1].t2growth()) * gFV(self.tableA()[4].t2growth()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[1].t1afi));	
+			secondTotal += (gFV(self.tableA()[1].t2growth()) * gFV(self.tableA()[5].t2growth()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[1].t1ifi));	
+			secondTotal += (gFV(self.tableA()[1].t2growth()) * gFV(self.tableA()[6].t2growth()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[1].t1o));	
+			
+			secondTotal += (gFV(self.tableA()[2].t2growth()) * gFV(self.tableA()[3].t2growth()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[2].t1c));
+			secondTotal += (gFV(self.tableA()[2].t2growth()) * gFV(self.tableA()[4].t2growth()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[2].t1afi));	
+			secondTotal += (gFV(self.tableA()[2].t2growth()) * gFV(self.tableA()[5].t2growth()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[2].t1ifi));	
+			secondTotal += (gFV(self.tableA()[2].t2growth()) * gFV(self.tableA()[6].t2growth()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[2].t1o));	
+
+			secondTotal += (gFV(self.tableA()[3].t2growth()) * gFV(self.tableA()[4].t2growth()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[3].t1afi));	
+			secondTotal += (gFV(self.tableA()[3].t2growth()) * gFV(self.tableA()[5].t2growth()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[3].t1ifi));	
+			secondTotal += (gFV(self.tableA()[3].t2growth()) * gFV(self.tableA()[6].t2growth()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[3].t1o));	
+
+			secondTotal += (gFV(self.tableA()[4].t2growth()) * gFV(self.tableA()[5].t2growth()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[4].t1ifi));	
+			secondTotal += (gFV(self.tableA()[4].t2growth()) * gFV(self.tableA()[6].t2growth()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[4].t1o));	
+				
+	
+			secondTotal += (gFV(self.tableA()[5].t2growth()) * gFV(self.tableA()[6].t2growth()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[5].t1o));	
+			
+			secondTotal *= 2;
+
+			
+			firstTotal += secondTotal;
+			
+			var tot = Math.sqrt(firstTotal);
+						
+			return (tot/100).toFixed(2);			
+		});
+		self.r4c4 = ko.computed(function(){
+			var firstTotal = 0.0;
+			var secondTotal = 0.0;
+			for (index = 0; index < self.tableA().length; ++index) 
+			{
+				firstTotal += (gFV(self.tableA()[index].t2curr()) * gFV(self.tableA()[index].t2curr()) * gFV(self.tableA()[index].stddev()) * gFV(self.tableA()[index].stddev()));
+
+			}	
+				
+			secondTotal += (gFV(self.tableA()[0].t2curr()) * gFV(self.tableA()[1].t2curr()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[0].t1ieh));
+			secondTotal += (gFV(self.tableA()[0].t2curr()) * gFV(self.tableA()[2].t2curr()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[0].t1ieuh));
+			secondTotal += (gFV(self.tableA()[0].t2curr()) * gFV(self.tableA()[3].t2curr()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[0].t1c));	
+			secondTotal += (gFV(self.tableA()[0].t2curr()) * gFV(self.tableA()[4].t2curr()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[0].t1afi));	
+			secondTotal += (gFV(self.tableA()[0].t2curr()) * gFV(self.tableA()[5].t2curr()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[0].t1ifi));	
+			secondTotal += (gFV(self.tableA()[0].t2curr()) * gFV(self.tableA()[6].t2curr()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[0].t1o));
+			
+			secondTotal += (gFV(self.tableA()[1].t2curr()) * gFV(self.tableA()[2].t2curr()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[1].t1ieuh));
+			secondTotal += (gFV(self.tableA()[1].t2curr()) * gFV(self.tableA()[3].t2curr()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[1].t1c));
+			secondTotal += (gFV(self.tableA()[1].t2curr()) * gFV(self.tableA()[4].t2curr()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[1].t1afi));	
+			secondTotal += (gFV(self.tableA()[1].t2curr()) * gFV(self.tableA()[5].t2curr()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[1].t1ifi));	
+			secondTotal += (gFV(self.tableA()[1].t2curr()) * gFV(self.tableA()[6].t2curr()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[1].t1o));	
+			
+			secondTotal += (gFV(self.tableA()[2].t2curr()) * gFV(self.tableA()[3].t2curr()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[2].t1c));
+			secondTotal += (gFV(self.tableA()[2].t2curr()) * gFV(self.tableA()[4].t2curr()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[2].t1afi));	
+			secondTotal += (gFV(self.tableA()[2].t2curr()) * gFV(self.tableA()[5].t2curr()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[2].t1ifi));	
+			secondTotal += (gFV(self.tableA()[2].t2curr()) * gFV(self.tableA()[6].t2curr()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[2].t1o));	
+
+			secondTotal += (gFV(self.tableA()[3].t2curr()) * gFV(self.tableA()[4].t2curr()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[3].t1afi));	
+			secondTotal += (gFV(self.tableA()[3].t2curr()) * gFV(self.tableA()[5].t2curr()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[3].t1ifi));	
+			secondTotal += (gFV(self.tableA()[3].t2curr()) * gFV(self.tableA()[6].t2curr()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[3].t1o));	
+
+			secondTotal += (gFV(self.tableA()[4].t2curr()) * gFV(self.tableA()[5].t2curr()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[4].t1ifi));	
+			secondTotal += (gFV(self.tableA()[4].t2curr()) * gFV(self.tableA()[6].t2curr()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[4].t1o));	
+				
+	
+			secondTotal += (gFV(self.tableA()[5].t2curr()) * gFV(self.tableA()[6].t2curr()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[5].t1o));	
+			
+			secondTotal *= 2;
+
+			
+			firstTotal += secondTotal;
+			
+			var tot = Math.sqrt(firstTotal);
+						
+			return (tot/100).toFixed(2);			
+		});
+		
+		self.r4c5 = ko.computed(function(){
+			var firstTotal = 0.0;
+			var secondTotal = 0.0;
+			for (index = 0; index < self.tableA().length; ++index)
+			{
+				firstTotal += (gFV(self.tableA()[index].t2prop()) * gFV(self.tableA()[index].t2prop()) * gFV(self.tableA()[index].stddev()) * gFV(self.tableA()[index].stddev()));
+			}	
+			secondTotal += (gFV(self.tableA()[0].t2prop()) * gFV(self.tableA()[1].t2prop()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[0].t1ieh));
+			secondTotal += (gFV(self.tableA()[0].t2prop()) * gFV(self.tableA()[2].t2prop()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[0].t1ieuh));
+			secondTotal += (gFV(self.tableA()[0].t2prop()) * gFV(self.tableA()[3].t2prop()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[0].t1c));	
+			secondTotal += (gFV(self.tableA()[0].t2prop()) * gFV(self.tableA()[4].t2prop()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[0].t1afi));	
+			secondTotal += (gFV(self.tableA()[0].t2prop()) * gFV(self.tableA()[5].t2prop()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[0].t1ifi));	
+			secondTotal += (gFV(self.tableA()[0].t2prop()) * gFV(self.tableA()[6].t2prop()) * gFV(self.tableA()[0].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[0].t1o));
+			
+			secondTotal += (gFV(self.tableA()[1].t2prop()) * gFV(self.tableA()[2].t2prop()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[1].t1ieuh));
+			secondTotal += (gFV(self.tableA()[1].t2prop()) * gFV(self.tableA()[3].t2prop()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[1].t1c));
+			secondTotal += (gFV(self.tableA()[1].t2prop()) * gFV(self.tableA()[4].t2prop()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[1].t1afi));	
+			secondTotal += (gFV(self.tableA()[1].t2prop()) * gFV(self.tableA()[5].t2prop()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[1].t1ifi));	
+			secondTotal += (gFV(self.tableA()[1].t2prop()) * gFV(self.tableA()[6].t2prop()) * gFV(self.tableA()[1].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[1].t1o));	
+			
+			secondTotal += (gFV(self.tableA()[2].t2prop()) * gFV(self.tableA()[3].t2prop()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[2].t1c));
+			secondTotal += (gFV(self.tableA()[2].t2prop()) * gFV(self.tableA()[4].t2prop()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[2].t1afi));	
+			secondTotal += (gFV(self.tableA()[2].t2prop()) * gFV(self.tableA()[5].t2prop()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[2].t1ifi));	
+			secondTotal += (gFV(self.tableA()[2].t2prop()) * gFV(self.tableA()[6].t2prop()) * gFV(self.tableA()[2].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[2].t1o));	
+
+			secondTotal += (gFV(self.tableA()[3].t2prop()) * gFV(self.tableA()[4].t2prop()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[3].t1afi));	
+			secondTotal += (gFV(self.tableA()[3].t2prop()) * gFV(self.tableA()[5].t2prop()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[3].t1ifi));	
+			secondTotal += (gFV(self.tableA()[3].t2prop()) * gFV(self.tableA()[6].t2prop()) * gFV(self.tableA()[3].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[3].t1o));	
+
+			secondTotal += (gFV(self.tableA()[4].t2prop()) * gFV(self.tableA()[5].t2prop()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[4].t1ifi));	
+			secondTotal += (gFV(self.tableA()[4].t2prop()) * gFV(self.tableA()[6].t2prop()) * gFV(self.tableA()[4].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[4].t1o));	
+				
+	
+			secondTotal += (gFV(self.tableA()[5].t2prop()) * gFV(self.tableA()[6].t2prop()) * gFV(self.tableA()[5].stddev()) * gFV(self.tableA()[6].stddev()) * gFV(self.tableA()[5].t1o));	
+			
+			secondTotal *= 2;
+
+			
+			firstTotal += secondTotal;
+			
+			var tot = Math.sqrt(firstTotal);
+						
+			return (tot/100).toFixed(2);			
+		});
+		//Divyank
+		self.r5c1 = ko.computed(function(){
+			
+			var result = gFV(1/ NORMDIST(0,gFV(self.r1c1()),gFV(self.r4c1()), true));
+		//	result *= 100;
+			if(result > 100)
+				result = 100;
+			return result;
+		});
+
+		self.r5c2 = ko.computed(function(){
+			var result = gFV(1/ NORMDIST(0,gFV(self.r1c2()),gFV(self.r4c2()), true));
+		//	result *= 100;
+			if(result > 100)
+				result = 100;
+			return result;
+		});
+		self.r5c3 = ko.computed(function(){
+			var result = gFV(1/ NORMDIST(0,gFV(self.r1c3()),gFV(self.r4c3()), true));
+			//result *= 100;
+			if(result > 100)
+				result = 100;
+			return result;
+		});
+		self.r5c4 = ko.computed(function(){
+			var result = gFV(1/ NORMDIST(0,gFV(self.r1c4()),gFV(self.r4c4()), true));
+			//result *= 100;
+			if(result > 100)
+				result = 100;
+			return result;
+		});
+		self.r5c5 = ko.computed(function(){
+			var result = gFV(1/ NORMDIST(0,gFV(self.r1c5()),gFV(self.r4c5()), true));
+			//result *= 100;
+			if(result > 100)
+				result = 100;
+			return result;
+		});
+
+
+		self.gdata = ko.computed(function(){
+			var toRet = [];
+			for (index = 0; index < self.tableA().length; ++index)
+			{
+				var trow = self.tableA()[index];
+				toRet.push({"xi":trow.id, "xv":trow.stddev(), "yv": trow.incAlpha(), "text":trow.assetClass()});
+			}
+			toRet.sort(sortBy("xv"));
+			return toRet;
+		});
+		self.minx = ko.computed(function(){
+			var tmin = 0.0;
+			for (index = 0; index < self.tableA().length; ++index)
+			{
+				var trow = self.tableA()[index];
+				if(tmin > gFV(trow.stddev()))
+					tmin = gFV(trow.stddev());
+			}
+			return tmin;
+		});
+		self.maxx = ko.computed(function(){
+			var tmax = 15.0;
+			for (index = 0; index < self.tableA().length; ++index)
+			{
+				var trow = self.tableA()[index];
+				if(tmax < gFV(trow.stddev()))
+					tmax = gFV(trow.stddev());
+			}
+			return tmax+10;
+		});
+		self.miny = ko.computed(function(){
+			var tmin = -10.0;
+			for (index = 0; index < self.tableA().length; ++index)
+			{
+				var trow = self.tableA()[index];
+				if(tmin > gFV(trow.incAlpha()))
+					tmin = gFV(trow.incAlpha());
+			}
+			return tmin-5;
+		});
+
+		self.maxy = ko.computed(function(){
+			var tmax = 10.0;
+			for (index = 0; index < self.tableA().length; ++index)
+			{
+				var trow = self.tableA()[index];
+				if(tmax < gFV(trow.incAlpha()))
+					tmax = gFV(trow.incAlpha());
+			}
+			return tmax+5;
+		});
+		
+		self.dummy = "";
+	}
+
+var cvm = new CalculationViewModel();
+ko.applyBindings(cvm);
+cvm.dummy = ko.computed(function(){
+			tempi = cvm.tableA().length;
+			InitChart();
+		});
+		
+function sortBy(arg){
+   return function(a,b){
+      if( a[arg] > b[arg]) return 1;
+      else if( a[arg] < b[arg] )return -1;
+      return 0;
+   }
+}
+
+function InitChart() {
+	$("#visualisation").empty();
+	var w = $('#graph').width();
+	if(w)
+		w=w-250;
+	else
+		w=1000;
+	var vis = d3.select("#visualisation"),
+	   WIDTH = w,
+		HEIGHT = 300,
+		MARGINS = {
+			top: 10,
+			right: 10,
+			bottom: 30,
+			left: 25
+		},
+		xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([cvm.minx(),cvm.maxx()]),
+		yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([cvm.miny(), cvm.maxy()]),
+		xAxis = d3.svg.axis()
+		.scale(xScale),
+		yAxis = d3.svg.axis()
+		.scale(yScale)
+		.orient("left");
+	
+	vis.append("svg:g")
+		.attr("class", "x axis")
+		.attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
+		.call(xAxis);
+	vis.append("svg:g")
+		.attr("class", "y axis")
+		.attr("transform", "translate(" + (MARGINS.left) + ",0)")
+		.call(yAxis);
+		
+	var lineGen = d3.svg.line()
+		.x(function(d) {
+			return xScale(d.x);
+		})
+		.y(function(d) {
+			return yScale(d.y);
+		})
+		.interpolate("basis");
+
+	var color = d3.scale.category20();
+	var tminx = cvm.minx();
+	var tmaxx = cvm.maxx();
+	var tminy = cvm.miny();
+	var tmaxy = cvm.maxy();
+	var clrs = [];
+	for(i=0;i<cvm.gdata().length;i++)
+	{
+		clrs.push(color(i));
+	}
+	for(i=0;i<cvm.gdata().length;i++)
+		{
+			dt = cvm.gdata()[i];
+			clr = clrs[dt.xi-1];
+			rad = Math.floor(5+gFV(dt.yv)*1);
+			if(rad > 20)
+				rad = 20;
+			var circle = vis.append("svg:circle")
+						 .attr("cx", xScale(dt.xv))
+						 .attr("cy", yScale(dt.yv))
+						 .attr("r", rad)
+						.attr("fill",clr);
+			var dix = gFV(dt.xv) +0.7;
+			var diy = gFV(dt.yv) - (12-i*2) ;
+			if(dix < tminx)
+				dix = gFV(tminx);
+			if(dix > tmaxx)
+				dix = gFV(tmaxx);
+				
+			if(diy < tminy)
+				diy = gFV(tminy);
+			if(diy > tmaxy)
+				diy = gFV(tmaxy);
+			
+			var tix = dix;
+			var tiy = diy-0.6;
+//			alert (tiy);
+			var ln = [ { "x": dt.xv,   "y": dt.yv},  { "x": dix,  "y": diy}];
+			var xval = dix;
+			var yval = diy;
+			var lineGraph = vis.append("svg:path")
+						.attr("d", lineGen(ln))
+						.attr("stroke", clr)
+						.attr("stroke-width", 2);
+//						.attr("fill", "none");
+			vis.append("svg:title")
+			.text(dt.text + "(StdDev:" + dt.xv + " , Income:" + dt.yv + ")");			
+			var textLabels = vis.append("svg:text")
+                 .attr("x", xScale(tix))
+                 .attr("y", yScale(tiy))
+                 .text(dt.text + "(StdDev:" + dt.xv + " , Income:" + dt.yv + ")")
+                 .attr("font-family", "sans-serif")
+                 .attr("font-size", "1em")
+                 .attr("fill", clr);						
+			//break;
+		}
+/*
+	vis.append('svg:path')
+		.attr('d', lineGen(data()))
+		.attr('stroke', 'green')
+		.attr('stroke-width', 2)
+		.attr('fill', 'none');
+*/
+}
+            })();
+    </script>
+</body>
+</html>
